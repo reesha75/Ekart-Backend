@@ -10,9 +10,6 @@ import cors from "cors";
 
 const app = express();
 
-// Connect Database
-await connectDB();
-
 // Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -36,20 +33,35 @@ app.use(
   })
 );
 
-// Routes
-app.use("/api/v1/user", userRoutes);
-app.use("/api/v1/product", productRoutes);
-app.use("/api/v1/cart", cartRoute);
-app.use("/api/v1/order", orderRoute);
-app.use("/api/v1/payment", paymentRoute);
-
-// Health Check Route
+// Health Check Route (does not require DB connection)
 app.get("/", (req, res) => {
   res.status(200).json({
     success: true,
     message: "Backend is running",
   });
 });
+
+// Database connection middleware (runs for all API routes)
+app.use(async (req, res, next) => {
+  try {
+    await connectDB();
+    next();
+  } catch (error) {
+    console.error("Database connection middleware error:", error.message);
+    res.status(500).json({
+      success: false,
+      message: "Database connection failed. Please verify your environment variables and MongoDB Atlas Network Access rules (IP Whitelist).",
+      error: error.message
+    });
+  }
+});
+
+// Routes
+app.use("/api/v1/user", userRoutes);
+app.use("/api/v1/product", productRoutes);
+app.use("/api/v1/cart", cartRoute);
+app.use("/api/v1/order", orderRoute);
+app.use("/api/v1/payment", paymentRoute);
 
 // Run server only in local environment
 if (process.env.NODE_ENV !== "production") {
