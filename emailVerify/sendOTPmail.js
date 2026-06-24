@@ -4,7 +4,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 
-export const sendOTPmail =(otp,email)=>{
+export const sendOTPmail = async (otp, email) => {
 const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
@@ -30,11 +30,15 @@ const mailConfigurations = {
         <p>Best regards,<br>The Team</p>
     `
 };
-transporter.sendMail(mailConfigurations, function(error, info){
-    if (error) throw Error(error);
+try {
+    const info = await transporter.sendMail(mailConfigurations);
     console.log('Otp Sent Successfully');
     console.log(info);
-});
+    return info;
+} catch (error) {
+    console.error('Error sending email:', error);
+    throw error;
+}
 }
 
 

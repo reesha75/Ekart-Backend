@@ -23,7 +23,8 @@ app.use(
       if (
         !origin ||
         /^http:\/\/localhost:\d+$/.test(origin) ||
-        origin === process.env.FRONTEND_URL
+        origin === process.env.FRONTEND_URL ||
+        /\.vercel\.app$/.test(origin)
       ) {
         callback(null, true);
         return;
