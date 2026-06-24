@@ -11,7 +11,7 @@ import cors from "cors";
 const app = express();
 
 // Connect Database
-connectDB();
+await connectDB();
 
 // Middleware
 app.use(express.json());
@@ -22,7 +22,8 @@ app.use(
     origin: (origin, callback) => {
       if (
         !origin ||
-        /^http:\/\/localhost:\d+$/.test(origin)
+        /^http:\/\/localhost:\d+$/.test(origin) ||
+        origin === process.env.FRONTEND_URL
       ) {
         callback(null, true);
         return;
